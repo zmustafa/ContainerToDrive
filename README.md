@@ -313,10 +313,6 @@ Do not delete it while the mount or its recovery state is uncertain. Close open 
 
 The application does not require a hosted gateway or a new Azure deployment. It authenticates to existing resources for discovery and blob operations. Those operations remain subject to your permissions, network policies, and Azure charges.
 
-## Legacy Profiles
-
-ContainerToDrive can migrate legacy BlobToDrive schema 1/2 profiles to schema 3, re-protect credentials and settings, and preserve migration backups. Disconnect and exit the legacy application cleanly first; never force an active mount to complete a rename. Compatibility code remains in the active projects, but obsolete project copies are not part of this source release.
-
 ## Documentation
 
 | Looking for | Read |
