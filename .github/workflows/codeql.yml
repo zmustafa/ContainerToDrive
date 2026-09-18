@@ -1,0 +1,62 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze C#
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      DOTNET_INSTALL_DIR: ${{ github.workspace }}\.tools\dotnet-sdk
+      DOTNET_CLI_HOME: ${{ github.workspace }}\.tools\dotnet-home
+      NUGET_PACKAGES: ${{ github.workspace }}\.packages\nuget
+      NUGET_HTTP_CACHE_PATH: ${{ github.workspace }}\.packages\nuget-http
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      CONTAINERTODRIVE_ALLOW_AZURE_TESTS: 'false'
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout without retained credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up SDK selected by global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          global-json-file: global.json
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@b96794f015dfd88f77b49b1c93e0fa7110f94c63
+        with:
+          languages: csharp
+          build-mode: manual
+          queries: security-extended
+      - name: Build solution for analysis
+        run: |
+          & ./scripts/Build.ps1 -Configuration Release -Locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Analyze
+        uses: github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63
+        with:
+          category: /language:csharp
+          upload: true
+          upload-database: false

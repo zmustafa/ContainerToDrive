@@ -1,0 +1,436 @@
+<Window x:Class="ContainerToDrive.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ContainerToDrive.Desktop"
+        Title="ContainerToDrive" Style="{StaticResource AppWindow}" Width="940" Height="680" MinWidth="760" MinHeight="520"
+        WindowStartupLocation="CenterScreen" Closing="OnWindowClosing">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="190" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+    <Border Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="14,20,14,16">
+        <StackPanel DockPanel.Dock="Top" Margin="6,0,0,24">
+          <Image Source="{StaticResource BrandIcon}" Width="38" Height="38" HorizontalAlignment="Left" Margin="0,0,0,14" />
+          <TextBlock Text="ContainerToDrive" FontSize="18" FontWeight="SemiBold" TextWrapping="NoWrap" />
+          <TextBlock Text="AZURE, IN EXPLORER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,0" />
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Bottom">
+          <Button Content="E_xit" Click="OnExitClick" HorizontalAlignment="Stretch" AutomationProperties.Name="Exit" />
+        </StackPanel>
+        <StackPanel KeyboardNavigation.DirectionalNavigation="Cycle">
+          <RadioButton x:Name="ConnectionsNav" Content="_Connections" GroupName="Navigation" Tag="Connections" Style="{StaticResource Navigation}" Checked="OnNavigation" />
+          <RadioButton Content="_Activity &amp; recovery" GroupName="Navigation" Tag="Activity" Style="{StaticResource Navigation}" Checked="OnNavigation" />
+          <RadioButton Content="_Diagnostics" GroupName="Navigation" Tag="Diagnostics" Style="{StaticResource Navigation}" Checked="OnNavigation" />
+          <RadioButton Content="_Logs" GroupName="Navigation" Tag="Logs" Style="{StaticResource Navigation}" Checked="OnNavigation" />
+          <RadioButton x:Name="SettingsNav" Content="_Settings" GroupName="Navigation" Tag="Settings" Style="{StaticResource Navigation}" Checked="OnNavigation" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Column="1" Margin="24,22,24,16">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <Grid Margin="0,0,0,22">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+        <StackPanel Margin="0,0,16,0">
+          <TextBlock Text="{Binding ViewTitle}" FontSize="30" FontWeight="SemiBold" AutomationProperties.HeadingLevel="Level1" />
+          <TextBlock Text="{Binding ViewSubtitle}" Style="{StaticResource Muted}" Margin="0,6,0,0" />
+        </StackPanel>
+        <Button Grid.Column="1" Content="＋  _Add connection" Style="{StaticResource PrimaryButton}" Click="OnAddClick"
+          IsEnabled="{Binding CanInteract}" VerticalAlignment="Center" AutomationProperties.Name="Add connection"
+          Visibility="{Binding ShowAddConnection, Converter={StaticResource BoolVisibility}}" />
+      </Grid>
+
+      <Border Grid.Row="1" Background="{DynamicResource WarningBrush}" CornerRadius="9" Padding="16,12" Margin="0,0,0,14"
+              Visibility="{Binding HasBanner, Converter={StaticResource BoolVisibility}}">
+        <StackPanel>
+          <TextBlock Text="{Binding BannerTitle}" FontWeight="SemiBold" Foreground="{DynamicResource WarningTextBrush}" />
+          <TextBlock Text="{Binding BannerText}" Foreground="{DynamicResource WarningTextBrush}" FontSize="12" Margin="0,5,0,0" />
+        </StackPanel>
+      </Border>
+      <StackPanel Grid.Row="2">
+        <DockPanel Visibility="{Binding Busy, Converter={StaticResource BoolVisibility}}" Margin="0,0,0,8">
+          <Button Content="Cancel _request" Click="OnCancelRequest" IsEnabled="{Binding CanCancelRequest}" DockPanel.Dock="Right" Margin="12,0,0,0" AutomationProperties.HelpText="Cancel this interface's wait or download. Close Windows Installer itself to cancel driver setup." />
+          <ProgressBar Height="3" IsIndeterminate="True" VerticalAlignment="Center" AutomationProperties.Name="Background action in progress" />
+        </DockPanel>
+        <Border Background="{DynamicResource AccentSoftBrush}" CornerRadius="7" Padding="12" Margin="0,0,0,12"
+                Visibility="{Binding HasNotice, Converter={StaticResource BoolVisibility}}">
+          <TextBlock Text="{Binding Notice}" AutomationProperties.LiveSetting="Polite" />
+        </Border>
+      </StackPanel>
+
+      <ScrollViewer x:Name="PageScroll" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,2,8,0" Focusable="False">
+        <Grid>
+          <StackPanel x:Name="ConnectionsView">
+            <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,0,0,18" Margin="0,0,0,20">
+              <StackPanel>
+                <DockPanel Margin="0,0,0,16">
+                  <TextBlock Text="{Binding ModeText}" DockPanel.Dock="Right" FontSize="11" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" />
+                  <TextBlock Text="System status" FontSize="18" FontWeight="SemiBold" AutomationProperties.HeadingLevel="Level2" />
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Components}">
+                  <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Margin="0,0,12,16">
+                        <TextBlock Text="{Binding Name}" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,6" />
+                        <StackPanel Orientation="Horizontal">
+                          <Ellipse Width="7" Height="7" Margin="0,0,7,0" VerticalAlignment="Center">
+                            <Ellipse.Style>
+                              <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{DynamicResource WarningTextBrush}" />
+                                <Style.Triggers><DataTrigger Binding="{Binding Healthy}" Value="True"><Setter Property="Fill" Value="{DynamicResource SuccessBrush}" /></DataTrigger></Style.Triggers>
+                              </Style>
+                            </Ellipse.Style>
+                          </Ellipse>
+                          <TextBlock Text="{Binding State}" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <WrapPanel>
+                  <Button Click="OnTestCapabilitiesClick" IsEnabled="{Binding NotBusy}" Margin="0,0,8,6" AutomationProperties.Name="Test capabilities" ToolTip="Test local components without mounting a drive or contacting Azure.">
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><AccessText Text="_Test capabilities" /></StackPanel>
+                  </Button>
+                  <Button Click="OnOpenSettingsClick" Margin="0,0,0,6" AutomationProperties.Name="Open settings" ToolTip="Application settings and dependency setup">
+                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><TextBlock Text="Settings" /></StackPanel>
+                  </Button>
+                </WrapPanel>
+                <Expander x:Name="CapabilityResults" Visibility="{Binding HasCapabilities, Converter={StaticResource BoolVisibility}}" Margin="0,14,0,0" Collapsed="OnCapabilityResultsCollapsed" HorizontalContentAlignment="Stretch" AutomationProperties.Name="Last capability test results">
+                  <Expander.Header><TextBlock Text="{Binding CapabilitySummary}" FontWeight="SemiBold" FontSize="12" AutomationProperties.LiveSetting="Polite" TextWrapping="Wrap" /></Expander.Header>
+                  <StackPanel Margin="0,10,0,0">
+                  <ItemsControl ItemsSource="{Binding Capabilities}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Grid Margin="0,0,0,8">
+                          <Grid.ColumnDefinitions><ColumnDefinition Width="114" /><ColumnDefinition Width="104" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                          <TextBlock Text="{Binding Name}" FontSize="12" />
+                          <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold" Margin="0,0,8,0">
+                            <TextBlock.Style>
+                              <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="Needs attention" /><Setter Property="Foreground" Value="{DynamicResource WarningTextBrush}" />
+                                <Style.Triggers><DataTrigger Binding="{Binding Passed}" Value="True"><Setter Property="Text" Value="Passed" /><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" /></DataTrigger></Style.Triggers>
+                              </Style>
+                            </TextBlock.Style>
+                          </TextBlock>
+                          <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="12" Foreground="{DynamicResource MutedBrush}" />
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <TextBlock Text="Azure access and writes: not tested" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" />
+                  </StackPanel>
+                </Expander>
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Visibility="{Binding IsEmpty, Converter={StaticResource BoolVisibility}}" Padding="26">
+              <StackPanel>
+                <TextBlock Text="A familiar drive. Your existing container." FontSize="24" FontWeight="SemiBold" Margin="0,0,0,12" />
+                <TextBlock Text="Connect an Azure Blob container using a SAS URL, an advanced storage account key, or Microsoft Azure sign-in, then browse it in Explorer." Style="{StaticResource Muted}" Margin="0,0,0,20" />
+                <TextBlock Text="01   Add a connection and choose a free drive letter" Margin="0,0,0,10" />
+                <TextBlock Text="02   Test access and save your connection" Margin="0,0,0,10" />
+                <TextBlock Text="03   Mount the drive, then open Explorer" />
+              </StackPanel>
+            </Border>
+            <ItemsControl x:Name="ConnectionCards" ItemsSource="{Binding Profiles}" Margin="-6,0,-6,0" SizeChanged="OnConnectionCardsSizeChanged">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><WrapPanel ItemWidth="{Binding ConnectionCardWidth}" /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Style="{StaticResource Card}" Padding="14,12" CornerRadius="8" Margin="6,0,6,10" VerticalAlignment="Top">
+                    <Border.Resources>
+                      <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="MinHeight" Value="32" /><Setter Property="Padding" Value="8,5" /><Setter Property="FontSize" Value="12" />
+                        <Setter Property="Margin" Value="0,0,6,4" />
+                      </Style>
+                      <Style x:Key="ConnectionTool" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Width" Value="32" /><Setter Property="Height" Value="32" /><Setter Property="Padding" Value="0" />
+                        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" /><Setter Property="FontSize" Value="14" />
+                        <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+                      </Style>
+                    </Border.Resources>
+                    <StackPanel>
+                      <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="46" /><ColumnDefinition Width="*" /><ColumnDefinition Width="130" /></Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource AccentSoftBrush}" CornerRadius="6" Width="36" Height="36" VerticalAlignment="Top" HorizontalAlignment="Left">
+                          <TextBlock Text="{Binding Drive}" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                          <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" />
+                          <TextBlock Text="{Binding Source}" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,2,0,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Source}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                          <TextBlock Text="{Binding Mode}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedBrush}" TextAlignment="Right" />
+                          <TextBlock Text="{Binding State}" FontSize="12" FontWeight="SemiBold" Margin="0,3,0,0" TextAlignment="Right" />
+                        </StackPanel>
+                      </Grid>
+                      <TextBlock Text="{Binding EndpointInfo}" Visibility="{Binding EndpointVisible, Converter={StaticResource BoolVisibility}}" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,6"
+                                 TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding EndpointHelp}" />
+                      <TextBlock Text="{Binding Uploads}" FontSize="12" />
+                      <Border Background="{DynamicResource WarningBrush}" Padding="8" CornerRadius="6" Margin="0,8,0,0" Visibility="{Binding NeedsRecovery, Converter={StaticResource BoolVisibility}}">
+                        <TextBlock Text="{Binding Recovery}" FontSize="12" Foreground="{DynamicResource WarningTextBrush}" />
+                      </Border>
+                      <WrapPanel Margin="0,10,0,0">
+                        <Button Content="{Binding MountLabel}" Click="OnMountClick" IsEnabled="{Binding CanMount}" Style="{StaticResource PrimaryButton}" MinHeight="32" Padding="10,5" FontSize="12" Margin="0,0,6,4" AutomationProperties.Name="{Binding Name, StringFormat='Mount or resume {0}'}" />
+                        <Button Content="&#xE8B7;" Style="{StaticResource ConnectionTool}" Click="OnOpenClick" IsEnabled="{Binding CanOpen}" ToolTip="Open in Explorer" AutomationProperties.Name="{Binding Name, StringFormat='Open {0} in Explorer'}" />
+                        <Button Content="_Disconnect" Click="OnDisconnectClick" IsEnabled="{Binding CanDisconnect}" AutomationProperties.Name="{Binding Name, StringFormat='Disconnect {0}'}" />
+                        <Button Click="OnValidateClick" IsEnabled="{Binding CanValidate}" ToolTip="Test saved access without mounting or writing to Azure." AutomationProperties.Name="{Binding Name, StringFormat='Test connection {0}'}">
+                          <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" VerticalAlignment="Center" /><AccessText Text="_Test" /></StackPanel>
+                        </Button>
+                        <Button Content="&#xE70F;" Style="{StaticResource ConnectionTool}" Click="OnEditClick" IsEnabled="{Binding CanEdit}" ToolTip="Edit settings. Disconnect and resolve recovery first." AutomationProperties.Name="{Binding Name, StringFormat='Edit {0}'}" />
+                        <Button Content="&#xE8C8;" Style="{StaticResource ConnectionTool}" Click="OnCloneClick" IsEnabled="{Binding CanClone}" ToolTip="Clone to an available drive letter. The copy stays unmounted with automatic mounting off." AutomationProperties.Name="{Binding Name, StringFormat='Clone connection {0}'}" />
+                        <Button Content="&#xE72C;" Style="{StaticResource ConnectionTool}" Click="OnRenewClick" IsEnabled="{Binding CanRenew}" ToolTip="Renew saved access" AutomationProperties.Name="{Binding Name, StringFormat='Renew credential for {0}'}" />
+                        <Button Content="&#xE74D;" Style="{StaticResource ConnectionTool}" Click="OnRemoveClick" IsEnabled="{Binding CanRemove}" Foreground="{DynamicResource DangerBrush}" Margin="0,0,0,4" ToolTip="Remove connection. Disconnect and resolve recovery first." AutomationProperties.Name="{Binding Name, StringFormat='Remove {0}'}" />
+                      </WrapPanel>
+                      <Expander Header="Details" FontSize="12" Margin="0,2,0,0" HorizontalContentAlignment="Stretch" AutomationProperties.Name="{Binding Name, StringFormat='Connection details for {0}'}">
+                        <StackPanel Margin="0,6,0,0">
+                          <TextBlock Text="{Binding Authentication}" Style="{StaticResource Muted}" FontSize="12" />
+                          <TextBlock Text="{Binding EndpointDetails}" Visibility="{Binding EndpointVisible, Converter={StaticResource BoolVisibility}}" Style="{StaticResource Muted}" FontSize="12" ToolTip="{Binding EndpointHelp}" />
+                          <TextBlock Text="{Binding Observation}" Style="{StaticResource Muted}" FontSize="12" />
+                          <TextBlock Text="{Binding Cache}" Style="{StaticResource Muted}" FontSize="12" />
+                          <TextBlock Text="{Binding Expiry}" Style="{StaticResource Muted}" FontSize="12" />
+                        </StackPanel>
+                      </Expander>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+          <StackPanel x:Name="ActivityView" Visibility="Collapsed">
+            <local:TransferDashboardView DataContext="{Binding Statistics}" />
+            <TextBlock Text="Connections &amp; recovery" Style="{StaticResource SectionTitle}" AutomationProperties.HeadingLevel="Level2" />
+            <ItemsControl ItemsSource="{Binding Profiles}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                      <TextBlock Text="{Binding Name}" FontSize="20" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding State}" Margin="0,8,0,0" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding EndpointInfo}" Visibility="{Binding EndpointVisible, Converter={StaticResource BoolVisibility}}" Style="{StaticResource Muted}" Margin="0,6,0,0" ToolTip="{Binding EndpointHelp}" />
+                      <TextBlock Text="{Binding Uploads}" Margin="0,8,0,0" />
+                      <TextBlock Text="{Binding Counts}" Style="{StaticResource Muted}" Margin="0,8,0,0" />
+                      <TextBlock Text="{Binding Observation}" Style="{StaticResource Muted}" />
+                      <TextBlock Text="{Binding Cache}" Style="{StaticResource Muted}" />
+                      <TextBlock Text="{Binding TransferTotal}" Margin="0,10,0,0" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding TransferDetails}" Style="{StaticResource Muted}" />
+                      <TextBlock Text="{Binding Recovery}" Margin="0,12,0,0" Visibility="{Binding NeedsRecovery, Converter={StaticResource BoolVisibility}}" />
+                      <WrapPanel Margin="0,14,0,0">
+                        <Button Content="_Test saved access" Click="OnValidateClick" IsEnabled="{Binding CanValidate}" Margin="0,0,8,6" AutomationProperties.Name="{Binding Name, StringFormat='Test saved access for {0}'}" />
+                        <Button Content="{Binding MountLabel}" Click="OnMountClick" IsEnabled="{Binding CanMount}" Margin="0,0,8,6" AutomationProperties.Name="{Binding Name, StringFormat='Mount or resume {0}'}" />
+                        <Button Content="_Disconnect" Click="OnDisconnectClick" IsEnabled="{Binding CanDisconnect}" Margin="0,0,8,6" AutomationProperties.Name="{Binding Name, StringFormat='Disconnect {0}'}" />
+                        <Button Content="Stop _now…" Click="OnForceClick" IsEnabled="{Binding CanForce}" Style="{StaticResource DangerButton}" Margin="0,0,8,6" AutomationProperties.Name="{Binding Name, StringFormat='Risky immediate stop for {0}'}" />
+                      </WrapPanel>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+          <StackPanel x:Name="DiagnosticsView" Visibility="Collapsed">
+            <Border Style="{StaticResource Card}">
+              <StackPanel>
+                <TextBlock Text="Local diagnostics. Shared only by you." Style="{StaticResource SectionTitle}" />
+                <TextBlock Text="Ask the controller to create a protected, redacted diagnostic export. The export is intended to exclude credentials and file contents; metadata can still be sensitive. Review the saved file before sharing it. Nothing is uploaded automatically." Style="{StaticResource Muted}" />
+                <WrapPanel Margin="0,20,0,12">
+                  <Button Content="_Export diagnostics…" Click="OnExportClick" Style="{StaticResource PrimaryButton}" IsEnabled="{Binding CanInteract}" Margin="0,0,10,6" />
+                  <Button Content="_Refresh controller state" Click="OnRefreshClick" IsEnabled="{Binding NotBusy}" Margin="0,0,0,6" />
+                </WrapPanel>
+                <Label Content="Protected export _path" Target="{Binding ElementName=ExportPathBox}" />
+                <TextBox x:Name="ExportPathBox" Text="{Binding ExportPath, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MinHeight="60" AutomationProperties.HelpText="Local controller-created export path; no file is uploaded or opened automatically." />
+                <TextBlock Text="Never paste SAS URLs, account keys, tokens, or authorization responses into issues or support messages." FontWeight="SemiBold" Margin="0,16,0,0" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel x:Name="SettingsView" Visibility="Collapsed">
+            <StackPanel.Resources>
+              <Style x:Key="SettingsSection" TargetType="Border">
+                <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+                <Setter Property="BorderThickness" Value="0,0,0,1" />
+                <Setter Property="Padding" Value="0,0,0,20" />
+                <Setter Property="Margin" Value="0,0,0,20" />
+              </Style>
+              <Style x:Key="SettingsHeading" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="18" /><Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,0,0,12" /><Setter Property="AutomationProperties.HeadingLevel" Value="Level2" />
+              </Style>
+            </StackPanel.Resources>
+            <WrapPanel Margin="0,0,0,18">
+              <Button x:Name="SavePreferencesButton" Click="OnSavePreferencesClick" IsEnabled="{Binding CanSavePreferences}" Style="{StaticResource PrimaryButton}" Margin="0,0,10,6" AutomationProperties.Name="Save preferences">
+                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><AccessText Text="_Save preferences" /></StackPanel>
+              </Button>
+              <Button Click="OnRestorePreferencesClick" IsEnabled="{Binding CanEditPreferences}" Margin="0,0,0,6" ToolTip="Restore preference defaults in this form. Save to apply. Windows startup, the data folder, and existing connections are not changed." AutomationProperties.Name="Reset preferences">
+                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><TextBlock Text="Reset preferences" /></StackPanel>
+              </Button>
+            </WrapPanel>
+            <TextBlock Text="{Binding PreferencesStatus}" Style="{StaticResource Muted}" Margin="0,0,0,16" AutomationProperties.LiveSetting="Polite" />
+            <TextBlock Text="{Binding Preferences.Error}" Foreground="{DynamicResource DangerBrush}" Margin="0,0,0,16" Visibility="{Binding Preferences.HasError, Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite" />
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel>
+                <TextBlock Text="Startup &amp; window" Style="{StaticResource SettingsHeading}" />
+                <CheckBox x:Name="StartWithWindowsCheck" Content="Start with _Windows"
+                          IsChecked="{Binding StartWithWindows, Mode=OneWay}" IsEnabled="{Binding CanChangeWindowsStartup}" Click="OnStartWithWindowsClick"
+                          ToolTip="{Binding WindowsStartupHint}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="Start with Windows" />
+                <StackPanel IsEnabled="{Binding CanEditPreferences}" Margin="0,10,0,0">
+                  <CheckBox x:Name="StartMinimizedCheck" Content="Start minimized to the tray" IsChecked="{Binding Preferences.StartMinimized}" Margin="0,0,0,10" ToolTip="Applies the next time the app opens. Windows sign-in startup always opens in the tray." />
+                  <CheckBox x:Name="CloseToTrayCheck" Content="Close window to tray" IsChecked="{Binding Preferences.CloseToTray}" ToolTip="When cleared, closing the window opens the existing exit confirmation. Active or uncertain drives are not stopped automatically." />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel>
+                <TextBlock Text="Storage" Style="{StaticResource SettingsHeading}" />
+                <Label Content="Application data location" Target="{Binding ElementName=DataRootBox}" />
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                  <TextBox x:Name="DataRootBox" Text="{Binding DataRoot, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
+                  <Button x:Name="BrowseDataRootButton" Grid.Column="1" Width="42" Margin="8,0,0,0" Padding="0" VerticalAlignment="Top"
+                          FontFamily="Segoe MDL2 Assets" Content="&#xE8B7;" Click="OnBrowseDataRootClick" IsEnabled="{Binding CanChangeDataLocation}"
+                          ToolTip="{Binding DataLocationHint}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="Browse for application data folder" />
+                </Grid>
+                <TextBlock Text="Cache limits are soft targets. Open or dirty files may exceed them. Cached contents can remain after access expires. The application never clears caches automatically." Style="{StaticResource Muted}" FontSize="12" Margin="0,10,0,0" />
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel IsEnabled="{Binding CanEditPreferences}">
+                <TextBlock Text="Display &amp; activity" Style="{StaticResource SettingsHeading}" />
+                <CheckBox x:Name="EndpointInfoCheck" Content="Resolve host IP and show endpoint type" IsChecked="{Binding Preferences.ShowEndpointInfo}" ToolTip="DNS IP ranges infer private/public, not the active mount route. Clearing this stops new desktop DNS lookups and hides IP observations." />
+                <WrapPanel Margin="0,12,0,0">
+                  <StackPanel Width="200" Margin="0,0,16,12">
+                    <Label Content="DNS refresh interval" Target="{Binding ElementName=DnsIntervalBox}" />
+                    <ComboBox x:Name="DnsIntervalBox" ItemsSource="{Binding Preferences.DnsIntervals}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Preferences.DnsRefreshSeconds}" IsEnabled="{Binding Preferences.ShowEndpointInfo}" ToolTip="Observations older than 75 seconds are marked stale, including between longer refresh intervals." />
+                  </StackPanel>
+                  <StackPanel Width="200" Margin="0,0,16,12">
+                    <Label Content="Collapse capability results" Target="{Binding ElementName=CapabilityCollapseBox}" />
+                    <ComboBox x:Name="CapabilityCollapseBox" ItemsSource="{Binding Preferences.CollapseIntervals}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Preferences.CapabilityCollapseSeconds}" />
+                  </StackPanel>
+                  <StackPanel Width="200" Margin="0,0,16,0">
+                    <Label Content="Default Activity period" Target="{Binding ElementName=ActivityPeriodBox}" />
+                    <ComboBox x:Name="ActivityPeriodBox" ItemsSource="{Binding Preferences.ActivityPeriods}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Preferences.ActivityPeriodDays}" />
+                  </StackPanel>
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel IsEnabled="{Binding CanEditPreferences}">
+                <TextBlock Text="New connection defaults" Style="{StaticResource SettingsHeading}" />
+                <WrapPanel>
+                  <StackPanel Width="200" Margin="0,0,16,0">
+                    <Label Content="Cache target (GiB)" Target="{Binding ElementName=DefaultCacheBox}" />
+                    <TextBox x:Name="DefaultCacheBox" Text="{Binding Preferences.CacheGiB, UpdateSourceTrigger=PropertyChanged}" ToolTip="0.25 to 1024 GiB. Applies only to newly added connections." />
+                  </StackPanel>
+                  <StackPanel Width="200" Margin="0,0,16,0">
+                    <Label Content="Free-space reserve (GiB)" Target="{Binding ElementName=DefaultMinFreeBox}" />
+                    <TextBox x:Name="DefaultMinFreeBox" Text="{Binding Preferences.MinFreeGiB, UpdateSourceTrigger=PropertyChanged}" ToolTip="1 to 1024 GiB. Applies only to newly added connections." />
+                  </StackPanel>
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel>
+                <TextBlock Text="Connection settings" Style="{StaticResource SettingsHeading}" />
+                <TextBlock Text="No saved connections" Style="{StaticResource Muted}" Visibility="{Binding IsEmpty, Converter={StaticResource BoolVisibility}}" />
+                <ItemsControl ItemsSource="{Binding Profiles}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,12,0">
+                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding Name}" />
+                          <TextBlock Text="{Binding SettingsSummary}" Style="{StaticResource Muted}" FontSize="12" />
+                          <TextBlock Text="{Binding Cache}" Style="{StaticResource Muted}" FontSize="12" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Click="OnEditClick" IsEnabled="{Binding CanEdit}" VerticalAlignment="Center"
+                                ToolTip="Edit drive, access, automatic mounting, and cache settings. Disconnect and resolve recovery first."
+                                ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding Name, StringFormat='Configure {0}'}">
+                          <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><TextBlock Text="Configure" /></StackPanel>
+                        </Button>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel>
+                <TextBlock Text="Components" Style="{StaticResource SettingsHeading}" />
+                <Button Click="OnInstallDependenciesClick" IsEnabled="{Binding CanInstallDependencies}" HorizontalAlignment="Left" AutomationProperties.Name="Install dependencies" ToolTip="{Binding InstallDependenciesHint}" ToolTipService.ShowOnDisabled="True">
+                  <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><AccessText Text="_Install dependencies" /></StackPanel>
+                </Button>
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource SettingsSection}">
+              <StackPanel>
+                <TextBlock Text="Privacy" Style="{StaticResource SettingsHeading}" />
+                <TextBlock Text="Credentials and application settings are protected for the current Windows user. Cached file contents are not encrypted by the application." Style="{StaticResource Muted}" FontSize="12" />
+                <TextBlock Text="No analytics or automatic diagnostic uploads." Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" />
+              </StackPanel>
+            </Border>
+            <Button Click="OnSavePreferencesClick" IsEnabled="{Binding CanSavePreferences}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" AutomationProperties.Name="Save preferences">
+              <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" /><TextBlock Text="Save preferences" /></StackPanel>
+            </Button>
+          </StackPanel>
+
+          <StackPanel x:Name="LogsView" Visibility="Collapsed">
+            <DockPanel Margin="0,0,0,16">
+              <Button Click="OnClearLogsClick" DockPanel.Dock="Right" IsEnabled="{Binding Logs.HasEntries}" AutomationProperties.Name="Clear logs" ToolTip="Clear the displayed session history. No files, drives, or caches are changed.">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center" />
+                  <TextBlock Text="Clear logs" />
+                </StackPanel>
+              </Button>
+              <TextBlock Text="{Binding Logs.Summary}" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" AutomationProperties.LiveSetting="Polite" />
+            </DockPanel>
+            <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,0,0,10">
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="86" /><ColumnDefinition Width="76" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <TextBlock Text="Time" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}" />
+                <TextBlock Grid.Column="1" Text="Level" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}" />
+                <TextBlock Grid.Column="2" Text="Event" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource MutedBrush}" />
+              </Grid>
+            </Border>
+            <TextBlock Text="No log entries" Margin="0,24,0,0" Foreground="{DynamicResource MutedBrush}" Visibility="{Binding Logs.IsEmpty, Converter={StaticResource BoolVisibility}}" />
+            <ItemsControl ItemsSource="{Binding Logs.Entries}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,12">
+                    <Grid>
+                      <Grid.ColumnDefinitions><ColumnDefinition Width="86" /><ColumnDefinition Width="76" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                      <TextBlock Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" ToolTip="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss zzz}}" FontSize="12" Foreground="{DynamicResource MutedBrush}" />
+                      <TextBlock Grid.Column="1" Text="{Binding Level}" FontSize="12" FontWeight="SemiBold" Margin="0,0,10,0">
+                        <TextBlock.Style>
+                          <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding Level}" Value="Warning"><Setter Property="Foreground" Value="{DynamicResource WarningTextBrush}" /></DataTrigger>
+                              <DataTrigger Binding="{Binding Level}" Value="Error"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /></DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </TextBlock.Style>
+                      </TextBlock>
+                      <StackPanel Grid.Column="2">
+                        <TextBlock Text="{Binding Message}" FontSize="13" />
+                        <TextBlock Text="{Binding Context}" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,5,0,0" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Grid>
+      </ScrollViewer>
+      <DockPanel Grid.Row="4" Margin="0,12,0,0">
+        <Button Content="_Refresh" Click="OnRefreshClick" IsEnabled="{Binding NotBusy}" DockPanel.Dock="Right" Padding="12,6" Margin="12,0,0,0" />
+        <TextBlock Text="{Binding ContactText}" Style="{StaticResource Muted}" FontSize="11" VerticalAlignment="Center" AutomationProperties.LiveSetting="Polite" />
+      </DockPanel>
+    </Grid>
+  </Grid>
+</Window>

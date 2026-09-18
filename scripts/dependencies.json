@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "Pinned upstream downloads reviewed 2026-09-10; WinFsp MSI Authenticode valid (NAVIMATICS LLC)",
+  "rclone": {
+    "version": "1.75.1",
+    "url": "https://downloads.rclone.org/v1.75.1/rclone-v1.75.1-windows-amd64.zip",
+    "checksumsUrl": "https://downloads.rclone.org/v1.75.1/SHA256SUMS",
+    "sha256": "200eb602c126d82aa38b51e0f6b9ae837473ff99b51278d3f6f837574c494d6e",
+    "sourceUrl": "https://github.com/rclone/rclone/tree/v1.75.1",
+    "licenseUrl": "https://raw.githubusercontent.com/rclone/rclone/v1.75.1/COPYING",
+    "license": "MIT"
+  },
+  "winfsp": {
+    "version": "2.1.25156",
+    "tag": "v2.1",
+    "url": "https://github.com/winfsp/winfsp/releases/download/v2.1/winfsp-2.1.25156.msi",
+    "sha256": "073a70e00f77423e34bed98b86e600def93393ba5822204fac57a29324db9f7a",
+    "sourceUrl": "https://github.com/winfsp/winfsp/tree/v2.1",
+    "licenseUrl": "https://raw.githubusercontent.com/winfsp/winfsp/v2.1/License.txt",
+    "licenseSha256": "68ae2fa9d8e6110ebdc9a236beecf118e279f8a26530daf09c9e682c231f7879",
+    "license": "GPLv3 with upstream FLOSS exception; see full License.txt",
+    "installation": "Separate unmodified official MSI; never installed or removed by these scripts"
+  },
+  "wix": {
+    "version": "6.0.2",
+    "status": "candidate; availability, terms, authoring and VM behavior require main-agent validation",
+    "packageId": "wix",
+    "toolRelativePath": ".tools/wix/6.0.2/wix.exe",
+    "sourceUrl": "https://github.com/wixtoolset/wix/tree/v6.0.2"
+  },
+  "development": {
+    "dataRootEnvironmentVariable": "CONTAINERTODRIVE_DATA_ROOT",
+    "dataRootContractVerified": true,
+    "note": "AppPaths.ResolveDataRoot and ControllerClient use the same explicit root; path, ACL, and persistence tests passed in local Windows integration."
+  }
+}

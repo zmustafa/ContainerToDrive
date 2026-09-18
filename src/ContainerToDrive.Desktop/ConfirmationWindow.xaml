@@ -1,0 +1,17 @@
+<Window x:Class="ContainerToDrive.Desktop.ConfirmationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource AppWindow}" Width="580" MinWidth="480" SizeToContent="Height" MaxHeight="680"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="NoResize">
+  <Grid Margin="28">
+    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <TextBlock x:Name="Heading" FontSize="23" FontWeight="SemiBold" Margin="0,0,0,18" AutomationProperties.HeadingLevel="Level1" />
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="430">
+      <TextBlock x:Name="Body" Style="{StaticResource Muted}" FontSize="14" />
+    </ScrollViewer>
+    <WrapPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,24,0,0">
+      <Button x:Name="CancelAction" Content="_Cancel" IsCancel="True" IsDefault="True" MinWidth="100" Margin="0,0,10,6" />
+      <Button x:Name="AcceptAction" Click="OnAccept" MinWidth="120" Margin="0,0,0,6" />
+    </WrapPanel>
+  </Grid>
+</Window>

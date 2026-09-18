@@ -1,0 +1,228 @@
+<Window x:Class="ContainerToDrive.Desktop.ConnectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ContainerToDrive.Desktop"
+        Title="Add connection" Style="{StaticResource AppWindow}" FontSize="13" Width="800" Height="660" MinWidth="520" MinHeight="460"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Loaded="OnLoaded" Closing="OnClosing" Closed="OnClosed">
+  <Window.Resources>
+    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+      <Setter Property="MinHeight" Value="32" /><Setter Property="Padding" Value="8,5" />
+    </Style>
+    <Style TargetType="PasswordBox" BasedOn="{StaticResource {x:Type PasswordBox}}">
+      <Setter Property="MinHeight" Value="32" /><Setter Property="Padding" Value="8,5" />
+    </Style>
+    <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+      <Setter Property="MinHeight" Value="32" /><Setter Property="Padding" Value="8,5" />
+    </Style>
+    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="MinHeight" Value="32" /><Setter Property="Padding" Value="10,5" />
+    </Style>
+    <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+      <Setter Property="Padding" Value="0,0,0,4" />
+    </Style>
+    <Style x:Key="PickerTool" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <Setter Property="Width" Value="26" /><Setter Property="Height" Value="26" />
+      <Setter Property="MinHeight" Value="26" /><Setter Property="Padding" Value="4" />
+      <Setter Property="Margin" Value="4,0,0,3" /><Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+    </Style>
+    <Style TargetType="local:SearchComboBox">
+      <Setter Property="MinHeight" Value="32" /><Setter Property="MaxDropDownHeight" Value="220" />
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+      <Setter Property="ItemContainerStyle">
+        <Setter.Value><Style TargetType="ComboBoxItem"><Setter Property="Padding" Value="8,6" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style></Setter.Value>
+      </Setter>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="local:SearchComboBox">
+            <Grid>
+              <Border x:Name="PickerBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4" />
+              <TextBox x:Name="PART_EditableTextBox" Background="Transparent" Foreground="{TemplateBinding Foreground}" BorderThickness="0" MinHeight="0" Padding="0" Margin="8,5,32,5" VerticalContentAlignment="Center" TextWrapping="NoWrap" IsReadOnly="{TemplateBinding IsReadOnly}" />
+              <TextBlock x:Name="PlaceholderText" Text="{TemplateBinding Placeholder}" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="8,0,32,0" VerticalAlignment="Center" IsHitTestVisible="False" Visibility="Collapsed" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+              <ToggleButton Width="28" HorizontalAlignment="Right" Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" AutomationProperties.Name="Open search results">
+                <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="Transparent"><TextBlock Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border></ControlTemplate></ToggleButton.Template>
+              </ToggleButton>
+              <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                <Border Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="4" Padding="0,4" Margin="0,3,0,0">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="10,8" Visibility="{Binding IsLoading, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolVisibility}}">
+                      <TextBlock Text="Searching..." FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,8" AutomationProperties.LiveSetting="Polite" />
+                      <ProgressBar Height="3" IsIndeterminate="True" Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource AccentSoftBrush}" BorderThickness="0" AutomationProperties.Name="Searching Azure resources" />
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="{TemplateBinding SearchStatus}" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="10,8" Visibility="{Binding HasSearchStatus, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite" />
+                    <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" /></ScrollViewer>
+                  </DockPanel>
+                </Border>
+              </Popup>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="Text" Value=""><Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" /></Trigger>
+              <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="PickerBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.6" /></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+  <Grid Margin="20,16,20,14">
+    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+    <StackPanel Margin="0,0,0,14">
+      <TextBlock x:Name="Heading" Text="Add a connection" FontSize="22" FontWeight="SemiBold" AutomationProperties.HeadingLevel="Level1" />
+      <TextBlock x:Name="StepText" Text="Step 1 of 3 · Connection" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,7,0,0"
+                 AutomationProperties.LiveSetting="Polite" />
+    </StackPanel>
+    <ScrollViewer x:Name="FormScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,12,0" Focusable="False">
+      <StackPanel x:Name="Fields">
+        <Border x:Name="ConnectionStep">
+          <StackPanel>
+            <Label Content="Connection _name" Target="{Binding ElementName=NameBox}" />
+            <TextBox x:Name="NameBox" MaxLength="100" AutomationProperties.Name="Connection name" TextChanged="OnFormChanged" />
+            <TextBlock x:Name="NameError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            <TextBlock Text="Authentication method" FontWeight="SemiBold" Margin="0,16,0,8" />
+            <WrapPanel>
+              <RadioButton x:Name="SasMethod" GroupName="Authentication" Content="_SAS URL" IsChecked="True" Margin="0,0,18,8" Checked="OnAuthMethodChanged" />
+              <RadioButton x:Name="AccountKeyMethod" GroupName="Authentication" Content="Account _key" Margin="0,0,18,8" Checked="OnAuthMethodChanged" />
+              <RadioButton x:Name="EntraMethod" GroupName="Authentication" Content="Sign in to _Azure" Margin="0,0,0,8" Checked="OnAuthMethodChanged" />
+            </WrapPanel>
+
+            <StackPanel x:Name="SasPanel" Margin="0,4,0,0">
+              <Label x:Name="SasLabel" Content="Container _SAS URL" Target="{Binding ElementName=SasBox}" />
+              <PasswordBox x:Name="SasBox" MaxLength="16384" PasswordChanged="OnFormChanged" AutomationProperties.Name="Container SAS URL, secret"
+                           AutomationProperties.HelpText="Paste a container-scoped HTTPS SAS URL. The secret field is cleared after each request." />
+              <TextBlock x:Name="SasHint" Text="Recommended for temporary or delegated access. Requires HTTPS read and list permission." Style="{StaticResource Muted}" FontSize="12" Margin="0,7,0,0" />
+              <TextBlock x:Name="SasError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            </StackPanel>
+
+            <StackPanel x:Name="AccountKeyPanel" Visibility="Collapsed" Margin="0,4,0,0">
+              <Border Background="{DynamicResource WarningBrush}" CornerRadius="7" Padding="10" Margin="0,0,0,10">
+                <TextBlock Text="Account keys grant broad access to the storage account and may be disabled by policy. Prefer SAS or Azure sign-in when possible." Foreground="{DynamicResource WarningTextBrush}" FontSize="12" TextWrapping="Wrap" />
+              </Border>
+              <Label Content="Storage account _name" Target="{Binding ElementName=AccountNameBox}" />
+              <TextBox x:Name="AccountNameBox" MaxLength="24" TextChanged="OnFormChanged" AutomationProperties.Name="Storage account name" />
+              <Label Content="Account _key" Target="{Binding ElementName=AccountKeyBox}" Margin="0,12,0,0" />
+              <PasswordBox x:Name="AccountKeyBox" MaxLength="1024" PasswordChanged="OnFormChanged" AutomationProperties.Name="Storage account key, secret" />
+              <WrapPanel Margin="0,10,0,0">
+                <Button x:Name="DiscoverKeyContainersButton" Content="_Load containers" Click="OnDiscoverKeyContainers" Margin="0,0,10,6" />
+                <TextBlock Text="The key is cleared after loading. Re-enter it before Test &amp; save." Style="{StaticResource Muted}" FontSize="12" VerticalAlignment="Center" />
+              </WrapPanel>
+              <Label Content="Blob _container" Target="{Binding ElementName=KeyContainerBox}" Margin="0,8,0,0" />
+              <local:SearchComboBox x:Name="KeyContainerBox" Placeholder="Enter a storage account first" SelectionChanged="OnFormSelectionChanged" KeyUp="OnFormKeyUp" AutomationProperties.Name="Blob container" />
+              <TextBlock x:Name="AccountError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            </StackPanel>
+
+            <StackPanel x:Name="EntraPanel" Visibility="Collapsed" Margin="0,4,0,0">
+              <WrapPanel>
+                <Button x:Name="AzureSignInButton" Content="_Sign in to Azure" Click="OnAzureSignIn" Margin="0,0,10,6" />
+                <Button x:Name="AzureRefreshButton" Content="_Refresh subscriptions" Click="OnRefreshSubscriptions" IsEnabled="False" Margin="0,0,10,6" />
+                <Button x:Name="AzureSignOutButton" Content="Sign _out" Click="OnAzureSignOut" IsEnabled="False" Margin="0,0,10,6" />
+                <TextBlock x:Name="AzureAccountText" Text="Not signed in" Style="{StaticResource Muted}" VerticalAlignment="Center" />
+              </WrapPanel>
+              <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <StackPanel>
+                  <Label Content="_Subscription" Target="{Binding ElementName=SubscriptionBox}" MinHeight="29" />
+                  <local:SearchComboBox x:Name="SubscriptionBox" SelectionChanged="OnSubscriptionChanged" Placeholder="Search subscriptions" FailureMessage="Subscriptions unavailable. Refresh or sign in again." AutomationProperties.Name="Subscription" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                  <DockPanel>
+                    <Button x:Name="ClearResourceGroupButton" DockPanel.Dock="Right" Content="&#xE711;" Style="{StaticResource PickerTool}" Click="OnClearResourceGroup" IsEnabled="False" ToolTip="Clear resource group; search the whole subscription" AutomationProperties.Name="Clear resource group filter" />
+                    <Button x:Name="RefreshResourceGroupsButton" DockPanel.Dock="Right" Content="&#xE72C;" Style="{StaticResource PickerTool}" Click="OnRefreshResourceGroups" IsEnabled="False" ToolTip="Refresh resource groups" AutomationProperties.Name="Refresh resource groups" />
+                    <Label Content="_Resource group" Target="{Binding ElementName=ResourceGroupBox}" VerticalAlignment="Center" />
+                  </DockPanel>
+                  <local:SearchComboBox x:Name="ResourceGroupBox" SelectionChanged="OnResourceGroupChanged" Placeholder="All resource groups" FailureMessage="Resource groups unavailable. Check Reader access and refresh." AutomationProperties.Name="Resource group, optional filter" />
+                </StackPanel>
+                <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                  <DockPanel>
+                    <Button x:Name="RefreshStorageAccountsButton" DockPanel.Dock="Right" Content="&#xE72C;" Style="{StaticResource PickerTool}" Click="OnRefreshStorageAccounts" IsEnabled="False" ToolTip="Refresh storage accounts in the current scope" AutomationProperties.Name="Refresh storage accounts" />
+                    <Label Content="Storage _account" Target="{Binding ElementName=StorageAccountBox}" VerticalAlignment="Center" />
+                  </DockPanel>
+                  <local:SearchComboBox x:Name="StorageAccountBox" SelectionChanged="OnStorageAccountChanged" Placeholder="Select a subscription first" FailureMessage="Storage accounts unavailable. Check Reader access and refresh." AutomationProperties.Name="Storage account" />
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
+                  <DockPanel>
+                    <Button x:Name="RefreshContainersButton" DockPanel.Dock="Right" Content="&#xE72C;" Style="{StaticResource PickerTool}" Click="OnRefreshContainers" IsEnabled="False" ToolTip="Refresh containers in the selected storage account" AutomationProperties.Name="Refresh containers" />
+                    <Label Content="Blob _container" Target="{Binding ElementName=EntraContainerBox}" VerticalAlignment="Center" />
+                  </DockPanel>
+                  <local:SearchComboBox x:Name="EntraContainerBox" SelectionChanged="OnFormSelectionChanged" Placeholder="Select a storage account first" FailureMessage="Containers unavailable. Check Blob Data Reader access, networking, and refresh." AutomationProperties.Name="Blob container" />
+                </StackPanel>
+              </Grid>
+              <TextBlock Text="Requires management Reader and permission to generate a user delegation key. Read-only needs Blob Data Reader; writable access needs Blob Data Contributor. The generated SAS expires and may require renewal." Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" />
+              <TextBlock x:Name="EntraError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            </StackPanel>
+
+            <Label Content="Blob _prefix (optional)" Target="{Binding ElementName=PrefixBox}" Margin="0,16,0,0" />
+            <TextBox x:Name="PrefixBox" MaxLength="1024" TextChanged="OnFormChanged" AutomationProperties.Name="Blob prefix, optional"
+                     AutomationProperties.HelpText="Relative prefix using forward slashes; no leading or trailing slash or dot segments." />
+            <TextBlock Text="A prefix narrows the presented view, not Azure authorization. Use forward slashes, without leading or trailing slashes." Style="{StaticResource Muted}" FontSize="12" Margin="0,7,0,0" />
+            <TextBlock x:Name="PrefixError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            <TextBlock x:Name="SourcePreview" Style="{StaticResource Muted}" FontSize="12" Margin="0,12,0,0" />
+          </StackPanel>
+        </Border>
+        <Border x:Name="DriveStep" Visibility="Collapsed">
+          <StackPanel>
+            <TextBlock Text="Drive settings" Style="{StaticResource SectionTitle}" />
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="24" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+              <StackPanel>
+                <Label Content="Drive _letter" Target="{Binding ElementName=DriveBox}" />
+                <ComboBox x:Name="DriveBox" IsEditable="True" IsTextSearchEnabled="True" SelectionChanged="OnFormChanged" AutomationProperties.Name="Drive letter"
+                          AutomationProperties.HelpText="Available letters D through Z, excluding existing drives and other saved profiles." />
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <Label Content="_Cache target (GiB)" Target="{Binding ElementName=CacheBox}" />
+                <TextBox x:Name="CacheBox" Text="10" MaxLength="12" TextChanged="OnFormChanged" AutomationProperties.Name="Cache target in GiB"
+                         AutomationProperties.HelpText="Soft target from 0.25 through 1024 GiB. Dirty or open files can exceed this target." />
+              </StackPanel>
+            </Grid>
+            <TextBlock x:Name="DriveHint" Text="Checking available drive letters…" Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" />
+            <TextBlock x:Name="DriveError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            <TextBlock x:Name="CacheError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            <CheckBox x:Name="ReadOnlyCheck" Content="_Read-only" IsChecked="True" Margin="0,16,0,0" Checked="OnModeChanged" Unchecked="OnModeChanged" />
+            <TextBlock x:Name="ModeHint" Text="Read-only by default. Clear this option only when this connection should modify Azure." Style="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0" />
+            <Border x:Name="WritableWarning" Background="{DynamicResource WarningBrush}" CornerRadius="7" Padding="12" Margin="0,12,0,0" Visibility="Collapsed">
+              <StackPanel>
+                <TextBlock Text="WRITABLE CONNECTION" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource WarningTextBrush}" />
+                <TextBlock Text="Deletes and edits affect Azure. Uploads can be delayed. Do not use databases, multiple editors, or workloads needing atomic multi-file operations. Keep the local cache intact." Foreground="{DynamicResource WarningTextBrush}" FontSize="12" Margin="0,7,0,8" />
+                <CheckBox x:Name="WritableConsent" Checked="OnFormChanged" Unchecked="OnFormChanged" AutomationProperties.Name="Accept experimental write risks">
+                  <TextBlock Text="I understand the risks and want this connection to be writable." Foreground="{DynamicResource WarningTextBrush}" />
+                </CheckBox>
+              </StackPanel>
+            </Border>
+            <TextBlock x:Name="WritableError" Style="{StaticResource FieldError}" AutomationProperties.LiveSetting="Polite" />
+            <CheckBox x:Name="AutoMountCheck" Content="_Automatically mount when the controller starts" Margin="0,16,0,0" Checked="OnFormChanged" Unchecked="OnFormChanged" />
+            <TextBlock Text="Off by default for new connections. Enable this only after deciding the drive should return automatically at controller startup; recovery may still require confirmation." Style="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0" />
+            <TextBlock x:Name="CacheHint" Style="{StaticResource Muted}" FontSize="12" Margin="0,12,0,0" />
+          </StackPanel>
+        </Border>
+        <Border x:Name="ReviewStep" Visibility="Collapsed">
+          <StackPanel>
+            <TextBlock Text="Review, test, then save" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="ReviewSource" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBlock x:Name="ReviewDrive" Margin="0,0,0,6" />
+            <TextBlock x:Name="ReviewAccess" Margin="0,0,0,6" />
+            <TextBlock x:Name="ReviewCache" Margin="0,0,0,6" />
+            <TextBlock x:Name="ReviewAutoMount" Margin="0,0,0,16" />
+            <TextBlock Text="Test &amp; save checks access before saving this profile. A successful connection test does not certify write access or every blob. Saving alone does not mount a drive." Style="{StaticResource Muted}" />
+            <TextBlock Text="Azure requests and retrieval charges can apply. Cache size is a soft target, and locally cached contents can remain after cloud credentials expire or you sign out." Style="{StaticResource Muted}" Margin="0,10,0,0" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+    <StackPanel Grid.Row="2" Margin="0,14,0,0">
+      <ProgressBar x:Name="Progress" Height="3" IsIndeterminate="True" Visibility="Collapsed" AutomationProperties.Name="Testing or saving connection" Margin="0,0,0,10" />
+      <TextBlock x:Name="StatusText" Text="Secret fields are cleared after every request. Saving alone does not mount a drive." Style="{StaticResource Muted}" FontSize="12" AutomationProperties.LiveSetting="Polite" Margin="0,0,0,14" />
+      <WrapPanel HorizontalAlignment="Right">
+        <Button x:Name="BackButton" Content="_Back" Click="OnBack" Visibility="Collapsed" Margin="0,0,10,6" />
+        <Button x:Name="CancelButton" Content="_Cancel" Click="OnCancel" Margin="0,0,10,6" />
+        <Button x:Name="NextButton" Content="_Next" Click="OnNext" IsEnabled="False" Style="{StaticResource PrimaryButton}" Margin="0,0,0,6" />
+        <Button x:Name="TestButton" Content="_Test only" Click="OnTest" IsEnabled="False" Visibility="Collapsed" Margin="0,0,10,6" />
+        <Button x:Name="SaveButton" Content="Test &amp; _save" Click="OnSave" IsEnabled="False" Visibility="Collapsed" Style="{StaticResource PrimaryButton}" Margin="0,0,0,6" />
+      </WrapPanel>
+    </StackPanel>
+  </Grid>
+</Window>

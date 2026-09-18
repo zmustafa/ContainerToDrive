@@ -1,0 +1,54 @@
+name: Build and local unit tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-unit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-unit:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      DOTNET_INSTALL_DIR: ${{ github.workspace }}\.tools\dotnet-sdk
+      DOTNET_CLI_HOME: ${{ github.workspace }}\.tools\dotnet-home
+      NUGET_PACKAGES: ${{ github.workspace }}\.packages\nuget
+      NUGET_HTTP_CACHE_PATH: ${{ github.workspace }}\.packages\nuget-http
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      CONTAINERTODRIVE_ALLOW_AZURE_TESTS: 'false'
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout without retained credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up SDK selected by global.json
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          global-json-file: global.json
+      - name: Parse scripts and test workspace safety guards
+        run: |
+          & ./tests/scripts/WorkspaceSafety.Tests.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build solution
+        run: |
+          & ./scripts/Build.ps1 -Configuration Release -Locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run offline unit tests
+        run: |
+          & ./scripts/Test.ps1 -Configuration Release -Tier Unit -Locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      # No bootstrap/driver/cloud/signing jobs, privileged persistent runners, artifact publication,
+      # pull_request_target trigger, GitHub release, or deployment credentials are configured here.

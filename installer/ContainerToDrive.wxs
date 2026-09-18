@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- WiX 6.0.2 candidate uses the v4 XML namespace and supports Files harvesting. -->
+  <Package Name="ContainerToDrive ($(var.PackageStatus) developer build)"
+           Manufacturer="ContainerToDrive contributors"
+           Version="$(var.ProductVersion)" Language="1033" Scope="perMachine"
+           UpgradeCode="AFE2F14A-D344-4D50-9E04-F2DF08DE074F" InstallerVersion="500">
+    <MajorUpgrade DowngradeErrorMessage="A newer ContainerToDrive version is already installed."
+                  Schedule="afterInstallInitialize" />
+    <MediaTemplate EmbedCab="yes" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <!-- Never ask Restart Manager to terminate or restart a controller with uncertain uploads. -->
+    <Property Id="MSIRESTARTMANAGERCONTROL" Value="DisableShutdown" />
+    <Property Id="MSIDISABLERMRESTART" Value="1" />
+        <Launch Condition="Installed OR (VersionNT64 AND WindowsBuild &gt;= 22000)"
+          Message="This developer package targets Windows 11 x64. Supported Windows editions/builds still require release validation." />
+    <!-- Presence only; runtime/driver/version health is a separate prerequisite check. -->
+    <Property Id="WINFSPROOT32">
+      <RegistrySearch Id="WinFspRoot32" Root="HKLM" Key="SOFTWARE\WinFsp" Name="InstallDir" Type="raw" Bitness="always32" />
+    </Property>
+    <Property Id="WINFSPROOT64">
+      <RegistrySearch Id="WinFspRoot64" Root="HKLM" Key="SOFTWARE\WinFsp" Name="InstallDir" Type="raw" Bitness="always64" />
+    </Property>
+    <Launch Condition="Installed OR WINFSPROOT32 OR WINFSPROOT64"
+            Message="Install the separately verified official WinFsp prerequisite first. ContainerToDrive never installs, downgrades, repairs, or removes shared WinFsp automatically. See INSTALLATION.md." />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="ContainerToDriveInstallFolder" Name="ContainerToDrive">
+        <Component Id="DesktopExecutableComponent" Guid="*" Bitness="always64">
+          <File Id="DesktopExecutable" Source="$(var.PublishDir)\ContainerToDrive.Desktop.exe" KeyPath="yes">
+            <Shortcut Id="StartMenuShortcut" Directory="ContainerToDriveProgramMenu" Name="ContainerToDrive"
+                      Advertise="yes" WorkingDirectory="ContainerToDriveInstallFolder" />
+            <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="ContainerToDrive"
+                      Advertise="yes" WorkingDirectory="ContainerToDriveInstallFolder" />
+          </File>
+          <RemoveFolder Id="RemoveProductMenu" Directory="ContainerToDriveProgramMenu" On="uninstall" />
+        </Component>
+        <Component Id="InstallMarkers" Guid="*" Bitness="always64">
+          <RegistryValue Root="HKLM" Key="Software\ContainerToDrive" Name="InstallDir"
+                         Type="string" Value="[ContainerToDriveInstallFolder]" KeyPath="yes" />
+          <RegistryValue Root="HKLM" Key="Software\ContainerToDrive" Name="Version" Type="string" Value="$(var.ProductVersion)" />
+          <RegistryValue Root="HKLM" Key="Software\ContainerToDrive" Name="PackageStatus" Type="string" Value="$(var.PackageStatus)" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ContainerToDriveProgramMenu" Name="ContainerToDrive" />
+    </StandardDirectory>
+    <StandardDirectory Id="DesktopFolder" />
+    <Feature Id="Application" Title="ContainerToDrive" Level="1">
+      <ComponentRef Id="DesktopExecutableComponent" />
+      <ComponentRef Id="InstallMarkers" />
+      <Files Directory="ContainerToDriveInstallFolder" Include="$(var.PublishDir)\**">
+        <Exclude Files="$(var.PublishDir)\ContainerToDrive.Desktop.exe" />
+      </Files>
+    </Feature>
+    <!-- No auto-launch, elevation helper, service, driver ownership, data purge, or forced process closure. -->
+  </Package>
+</Wix>

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>ContainerToDrive.Desktop</AssemblyName>
+    <RootNamespace>ContainerToDrive.Desktop</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+    <InternalsVisibleTo Include="ContainerToDrive.Tests" />
+    <PackageReference Include="Azure.ResourceManager" Version="1.14.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.29.2" />
+    <ProjectReference Include="..\ContainerToDrive.Core\ContainerToDrive.Core.csproj" />
+    <ProjectReference Include="..\ContainerToDrive.Windows\ContainerToDrive.Windows.csproj" />
+  </ItemGroup>
+</Project>

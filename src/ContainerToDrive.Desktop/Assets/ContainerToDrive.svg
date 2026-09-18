@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title description">
+  <title id="title">ContainerToDrive</title>
+  <desc id="description">A three-dimensional storage container above a drive tray on a blue tile.</desc>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1674E8" />
+      <stop offset="1" stop-color="#2752BD" />
+    </linearGradient>
+  </defs>
+  <path fill="url(#tile)" d="M14,0 H50 Q64,0 64,14 V50 Q64,64 50,64 H14 Q0,64 0,50 V14 Q0,0 14,0Z" />
+  <path fill="#FFFFFF" d="M32,10 L46,17 L32,24 L18,17Z" />
+  <path fill="#C3E9FF" d="M18,20 L30.5,26.25 V39 L18,32.75Z" />
+  <path fill="#67DCE5" d="M33.5,26.25 L46,20 V32.75 L33.5,39Z" />
+  <path fill="#C3E9FF" d="M16,42 H48 L53,48 H11Z" />
+  <path fill="#FFFFFF" d="M11,50 H53 V52 Q53,56 49,56 H15 Q11,56 11,52Z" />
+  <path fill="#2752BD" d="M43,52 H47 Q48,52 48,53 Q48,54 47,54 H43 Q42,54 42,53 Q42,52 43,52Z" />
+</svg>

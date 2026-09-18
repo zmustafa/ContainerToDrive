@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="src/ContainerToDrive.Core/ContainerToDrive.Core.csproj" />
+  <Project Path="src/ContainerToDrive.Windows/ContainerToDrive.Windows.csproj" />
+  <Project Path="src/ContainerToDrive.Rclone/ContainerToDrive.Rclone.csproj" />
+  <Folder Name="/src/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/ContainerToDrive.IntegrationTests/ContainerToDrive.IntegrationTests.csproj" />
+  </Folder>
+  <Project Path="src/ContainerToDrive.Controller/ContainerToDrive.Controller.csproj" />
+  <Project Path="src/ContainerToDrive.Desktop/ContainerToDrive.Desktop.csproj" />
+  <Project Path="tests/ContainerToDrive.Tests/ContainerToDrive.Tests.csproj" />
+</Solution>

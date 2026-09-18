@@ -1,0 +1,66 @@
+<UserControl x:Class="ContainerToDrive.Desktop.TransferDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:oxy="http://oxyplot.org/wpf">
+  <StackPanel>
+    <TextBlock Text="Transfer statistics" Style="{StaticResource SectionTitle}" AutomationProperties.HeadingLevel="Level2" />
+    <WrapPanel Margin="0,0,0,12">
+      <ComboBox Width="210" Margin="0,0,12,8" ItemsSource="{Binding Connections}" SelectedValuePath="Id" DisplayMemberPath="Name"
+                SelectedValue="{Binding ProfileId}" AutomationProperties.Name="Statistics connection" />
+      <ListBox ItemsSource="{Binding Periods}" SelectedItem="{Binding Period}" DisplayMemberPath="Name"
+               BorderThickness="0" Background="Transparent" Margin="0,0,0,8" AutomationProperties.Name="Statistics period">
+        <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ListBox.ItemsPanel>
+        <ListBox.ItemContainerStyle>
+          <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="10,9" /><Setter Property="MinHeight" Value="38" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+          </Style>
+        </ListBox.ItemContainerStyle>
+      </ListBox>
+    </WrapPanel>
+    <WrapPanel Margin="0,0,0,14">
+      <StackPanel Width="136" Margin="0,0,10,12"><TextBlock Text="Period total" Style="{StaticResource Muted}" FontSize="12" /><TextBlock Text="{Binding PeriodBytes}" FontSize="22" FontWeight="SemiBold" /></StackPanel>
+      <StackPanel Width="136" Margin="0,0,10,12"><TextBlock Text="Recorded lifetime" Style="{StaticResource Muted}" FontSize="12" /><TextBlock Text="{Binding LifetimeBytes}" FontSize="22" FontWeight="SemiBold" /></StackPanel>
+      <StackPanel Width="136" Margin="0,0,10,12"><TextBlock Text="Current rate" Style="{StaticResource Muted}" FontSize="12" /><TextBlock Text="{Binding Rate}" FontSize="22" FontWeight="SemiBold" /></StackPanel>
+      <StackPanel Width="136" Margin="0,0,10,12"><TextBlock Text="Completed transfers" Style="{StaticResource Muted}" FontSize="12" /><TextBlock Text="{Binding PeriodTransfers}" FontSize="22" FontWeight="SemiBold" /></StackPanel>
+      <StackPanel Width="136" Margin="0,0,10,12"><TextBlock Text="Engine errors" Style="{StaticResource Muted}" FontSize="12" /><TextBlock Text="{Binding PeriodErrors}" FontSize="22" FontWeight="SemiBold" /></StackPanel>
+    </WrapPanel>
+    <TextBlock Text="{Binding Coverage}" Style="{StaticResource Muted}" FontSize="12" AutomationProperties.LiveSetting="Polite" />
+    <ProgressBar Height="3" IsIndeterminate="True" Margin="0,8,0,0" Visibility="{Binding Loading, Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="Loading transfer history" />
+    <TextBlock Text="{Binding ChartTitle}" FontWeight="SemiBold" Margin="0,20,0,6" />
+    <Grid Height="230" Background="{DynamicResource SurfaceBrush}">
+      <oxy:PlotView Model="{Binding HistoryPlot}" Visibility="{Binding HasData, Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="Transfer volume history graph" />
+      <TextBlock Text="{Binding EmptyMessage}" Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding NoData, Converter={StaticResource BoolVisibility}}" />
+    </Grid>
+    <TextBlock Text="Traffic by connection" FontWeight="SemiBold" Margin="0,20,0,0" />
+    <WrapPanel>
+      <Grid Width="220" Height="200">
+        <oxy:PlotView Model="{Binding SharePlot}" Visibility="{Binding HasTraffic, Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="Connection traffic share pie chart" />
+        <TextBlock Text="No transferred bytes" Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding NoTraffic, Converter={StaticResource BoolVisibility}}" />
+      </Grid>
+      <ItemsControl ItemsSource="{Binding Legend}" Width="225" Margin="12,12,0,0" VerticalAlignment="Center">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <DockPanel Margin="0,0,0,8">
+              <Rectangle Width="10" Height="10" Fill="{Binding Color}" VerticalAlignment="Top" Margin="0,4,8,0" />
+              <StackPanel><TextBlock Text="{Binding Name}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" /><TextBlock Text="{Binding Value}" FontSize="12" Style="{StaticResource Muted}" /></StackPanel>
+            </DockPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </WrapPanel>
+    <TextBlock Text="{Binding ScopeNote}" Style="{StaticResource Muted}" FontSize="12" Margin="0,4,0,12" />
+    <Expander Header="Transfer data" Margin="0,0,0,20">
+      <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
+                CanUserReorderColumns="False" MaxHeight="250" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource TextBrush}" AutomationProperties.Name="Transfer history data table">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="UTC period" Binding="{Binding Period}" Width="*" />
+          <DataGridTextColumn Header="Bytes" Binding="{Binding Bytes}" Width="*" />
+          <DataGridTextColumn Header="Transfers" Binding="{Binding Transfers}" Width="85" />
+          <DataGridTextColumn Header="Errors" Binding="{Binding Errors}" Width="65" />
+        </DataGrid.Columns>
+      </DataGrid>
+    </Expander>
+  </StackPanel>
+</UserControl>

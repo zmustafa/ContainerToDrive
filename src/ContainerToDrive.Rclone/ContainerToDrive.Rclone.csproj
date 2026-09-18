@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../ContainerToDrive.Core/ContainerToDrive.Core.csproj" />
+    <ProjectReference Include="../ContainerToDrive.Windows/ContainerToDrive.Windows.csproj" />
+  </ItemGroup>
+</Project>

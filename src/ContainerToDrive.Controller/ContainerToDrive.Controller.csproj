@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.29.2" />
+    <ProjectReference Include="../ContainerToDrive.Core/ContainerToDrive.Core.csproj" />
+    <ProjectReference Include="../ContainerToDrive.Windows/ContainerToDrive.Windows.csproj" />
+    <ProjectReference Include="../ContainerToDrive.Rclone/ContainerToDrive.Rclone.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose an improvement to ContainerToDrive.
+body:
+  - type: markdown
+    attributes:
+      value: Keep examples synthetic. Do not include private account identifiers, credentials, or customer content.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or workflow
+      description: Describe the task that is difficult today and who it affects.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the expected behavior, including any data-safety implications.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
