@@ -13,12 +13,9 @@ ContainerToDrive connects an existing blob container to File Explorer using **rc
 
 ## Walkthrough
 
-<details>
-<summary>Watch the two-minute desktop walkthrough (original GIF, approximately 2.5 MB)</summary>
+Two-minute desktop walkthrough (original GIF, approximately 2.5 MB):
 
 ![ContainerToDrive walkthrough showing connection management, Explorer integration, activity, diagnostics, logs, settings, and disconnecting a drive.](docs/assets/ContainerToDrive-Walkthrough.gif)
-
-</details>
 
 [Open the walkthrough GIF at full size](docs/assets/ContainerToDrive-Walkthrough.gif).
 
