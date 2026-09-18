@@ -6,10 +6,23 @@ ContainerToDrive connects an existing blob container to File Explorer using **rc
 
 **Windows 11 x64** | **C# / .NET 10 LTS / WPF** | **0.3.1 developer preview** | **MIT-licensed application code**
 
-[Get started](#start-here) | [Explore features](#features) | [Choose authentication](#authentication) | [Read the user guide](docs/QUICKSTART.md) | [Contribute](CONTRIBUTING.md) | [Report a vulnerability](SECURITY.md)
+[Get started](#start-here) | [Watch the walkthrough](#walkthrough) | [Explore features](#features) | [Choose authentication](#authentication) | [Read the user guide](docs/QUICKSTART.md) | [Contribute](CONTRIBUTING.md) | [Report a vulnerability](SECURITY.md)
 
 > [!IMPORTANT]
 > This is a **source-only developer preview**, not a production-supported release. No downloadable application binary or certified installer is provided by this repository. New connections begin read-only; enabling writes requires explicit confirmation. Live write durability, recovery, and installer certification remain incomplete. Evaluate with disposable data, not your only copy.
+
+## Walkthrough
+
+<details>
+<summary>Watch the two-minute desktop walkthrough (original GIF, approximately 2.5 MB)</summary>
+
+![ContainerToDrive walkthrough showing connection management, Explorer integration, activity, diagnostics, logs, settings, and disconnecting a drive.](docs/assets/ContainerToDrive-Walkthrough.gif)
+
+</details>
+
+[Open the walkthrough GIF at full size](docs/assets/ContainerToDrive-Walkthrough.gif).
+
+This is the original recording of an earlier developer preview, not a synthetic-data demonstration. It retains the recorded connection and environment details. The recording predates the responsive two-column connection layout, so some screens differ from the current source. The writable mount shown does not establish write durability or production readiness.
 
 ## Why ContainerToDrive
 
@@ -26,10 +39,12 @@ The drive is a view over object storage, **not a conversion to NTFS or SMB**. Ex
 
 ## Contents
 
+- [Walkthrough](#walkthrough)
 - [Features](#features)
 - [A connection from start to finish](#connection-workflow)
 - [Start here](#start-here)
 - [Build and test](#build-and-test)
+- [Get started with GitHub Copilot Chat](#get-started-with-github-copilot-chat)
 - [Try the desktop](#try-the-desktop)
 - [Authentication](#authentication)
 - [How it works](#how-it-works)
@@ -91,6 +106,7 @@ See the [user guide](docs/QUICKSTART.md) for the controls, defaults, and safety 
 | Your goal | Follow this path | Azure or driver access needed? |
 | --- | --- | --- |
 | Inspect the code or contribute | [Build and test](#build-and-test) | No Azure credentials or filesystem driver required. Restore uses NuGet. |
+| Get guided setup help in your editor | [GitHub Copilot Chat](#get-started-with-github-copilot-chat) | Copilot access is needed for chat; Azure credentials and driver installation are not needed for build/unit checks. |
 | Evaluate the desktop and mount a test container | [Try the desktop](#try-the-desktop), then the [user guide](docs/QUICKSTART.md) | Mounting requires WinFsp and access to the chosen Azure container. |
 | Understand the design and data boundaries | [How it works](#how-it-works) and [Security and local data](#security-and-local-data) | No application launch required. |
 
@@ -124,6 +140,68 @@ The build includes the desktop, controller, supporting libraries, and test proje
 The default unit tier uses synthetic fixtures. It does not discover credentials, contact Azure, mount drives, or install drivers. The test wrapper rejects failures, skipped cases, and zero-test runs. Local Windows integration and interactive WPF checks have separate prerequisites and entry points; see [tests/README.md](tests/README.md).
 
 GitHub configuration is included for Windows build/unit checks, C# CodeQL analysis, and Dependabot updates. Workflow definitions are not a claim that hosted checks have already passed. They do not create binary releases, deploy the application, or use Azure credentials.
+
+## Get Started with GitHub Copilot Chat
+
+You can use GitHub Copilot Chat in **VS Code or Visual Studio** to understand the repository, check prerequisites, and work through the existing scripts. Copilot is optional developer tooling, not part of ContainerToDrive: the application does not require an AI subscription or model API key.
+
+### Prepare your editor
+
+1. Install Git, PowerShell 7.4 or newer, and the .NET SDK selected by [global.json](global.json). Use a normal, non-administrator Windows session.
+2. Clone the repository using the commands in [Build and Test](#build-and-test), then open it in your editor. A fresh source checkout keeps this workflow separate from a deployment with real profiles or mounted drives.
+3. Enable GitHub Copilot and sign in through the editor's GitHub account flow with an account that has Copilot access. Do not paste a GitHub token into chat. Availability and usage limits depend on your account and organization policy.
+
+| Editor | Open and configure |
+| --- | --- |
+| VS Code | Open the cloned repository folder, not just an individual source file. Install Microsoft's **C# Dev Kit** extension and enable the official GitHub Copilot integration. Open the **Chat** view. |
+| Visual Studio | Use a release that supports the SDK selected by [global.json](global.json), with the **.NET desktop development** workload and GitHub Copilot enabled. Open [ContainerToDrive.slnx](ContainerToDrive.slnx), then open **GitHub Copilot Chat**. |
+
+When prompted, review the repository before trusting the workspace or approving command execution. Copilot does not replace the required SDK, PowerShell, driver, or Azure permissions.
+
+### Start with a plan
+
+Attach or reference [README.md](README.md), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [global.json](global.json) using the chat context controls. Start in **Ask** mode, where available, and use a scoped request such as:
+
+```text
+Help me get started with ContainerToDrive on Windows. Read the attached
+documentation and inspect the source and build scripts as needed.
+Explain the prerequisites and the steps to build and run the offline unit
+tests. Plan only: do not edit files, run commands, install dependencies,
+start the application, or make Git commits or pushes.
+Do not read local profiles, credentials, caches, or ignored application data.
+```
+
+Review the proposed commands against this README. Check that the SDK matches the repository and that the plan uses the existing scripts rather than inventing a different setup or weakening locked restore checks.
+
+### Run the local build checks
+
+Execute the commands yourself in a PowerShell 7 terminal at the repository root, or switch to **Agent** mode, if available, and explicitly approve a bounded task:
+
+```text
+Check the installed .NET SDK and PowerShell versions against this repository.
+If they are compatible, run these commands from the repository root:
+./scripts/Build.ps1 -Configuration Release -Locked
+./scripts/Test.ps1 -Configuration Release -Tier Unit -Locked
+./tests/scripts/WorkspaceSafety.Tests.ps1
+
+Use the existing scripts without changing source, configuration, or lock files.
+NuGet restore downloads are allowed. If a prerequisite or check fails, stop
+and explain the failure; do not install tools or change dependencies to fix it.
+Do not bootstrap, package, launch the app, access Azure, install drivers,
+mount drives, stop processes, delete files, commit, or push.
+Report which checks actually ran, their exit status, and any test failures.
+```
+
+Review each tool or terminal approval. Do not enable blanket approvals for setup. For a failure, share only a redacted error excerpt and the relevant source file; ask for a diagnosis before authorizing a fix. The same commands can be run manually if your editor or policy does not offer Agent mode.
+
+### Continue to the desktop
+
+After the checks pass, follow [Try the Desktop](#try-the-desktop) as a separate, explicitly approved task. Ask Copilot to explain the bootstrap, packaging, and launch steps before running them. Dependency downloads, WinFsp installation, packaging, and live Azure access are not part of the build/unit-test approval above.
+
+Once the app is open, add a disposable test connection through its own UI and keep it read-only. Complete Microsoft Entra sign-in in the browser, or enter the SAS/account key in the application's credential fields. Review the connection state and use the application's disconnect workflow; do not ask Copilot to kill a worker or remove a cache to resolve an uncertain mount.
+
+> [!WARNING]
+> Chat context and tool output can be sent to your configured AI service. Never attach credentials, live profile stores, cache contents, unredacted diagnostics, or screenshots with private data. Git ignore rules and written prompts are not an access-control boundary for an agent. Keep sensitive data outside the development checkout where practical, review context and approvals, and follow your organization's Copilot policy.
 
 ## Try the Desktop
 
@@ -197,7 +275,7 @@ The controller can continue managing drives and recording transfer observations 
 - **Diagnostics are shared only by your choice.** Exports are created locally and intended to be redacted, but metadata may still be sensitive. Review the actual files before attaching or uploading anything.
 - **Transfer charts are observations, not billing records.** History stores numeric counters, connection identifiers, and timestamps rather than file contents. Totals can include retries and are not a directional traffic breakdown or confirmation that writes reached Azure.
 
-The source publication excludes live profiles, credentials, caches, generated binaries, and real-data captures. That exclusion is a repository boundary, not a substitute for reviewing material before sharing it. Read [SECURITY.md](SECURITY.md) for the security model and private reporting route.
+The source publication excludes live profiles, credentials, caches, and generated binaries. The walkthrough is an original live recording with recorded environment details; media require separate privacy review and are not covered by text-only credential scans. Git exclusions are a repository boundary, not a substitute for reviewing material before sharing it. Read [SECURITY.md](SECURITY.md) for the security model and private reporting route.
 
 ## Important Limitations
 

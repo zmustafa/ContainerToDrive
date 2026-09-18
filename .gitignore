@@ -17,6 +17,9 @@
 
 /docs/*
 !/docs/QUICKSTART.md
+!/docs/assets/
+/docs/assets/*
+!/docs/assets/ContainerToDrive-Walkthrough.gif
 /src/BlobToDrive.*/
 /tests/BlobToDrive.*/
 
