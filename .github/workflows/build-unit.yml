@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 25
     env:
-      DOTNET_INSTALL_DIR: ${{ github.workspace }}\.tools\dotnet-sdk
+      DOTNET_INSTALL_DIR: ${{ runner.temp }}\dotnet-sdk
       DOTNET_CLI_HOME: ${{ github.workspace }}\.tools\dotnet-home
       NUGET_PACKAGES: ${{ github.workspace }}\.packages\nuget
       NUGET_HTTP_CACHE_PATH: ${{ github.workspace }}\.packages\nuget-http

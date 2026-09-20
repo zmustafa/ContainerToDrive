@@ -64,7 +64,7 @@ SOFTWARE.
 
 Self-contained application packages contain Microsoft .NET and Windows Desktop runtime components. Packaging copies full runtime license and third-party notice material from the actual restored runtime packs, and records versions from publish metadata. These notices do not imply every runtime component is MIT.
 
-The development-only test project pins Microsoft.NET.Test.Sdk 17.14.1, xunit 2.9.3, and xunit.runner.visualstudio 3.1.1. Test tooling is not intentionally included in customer payloads. Review exact package licenses and transitive dependencies before distributing any tooling.
+The development-only test projects pin Microsoft.NET.Test.Sdk 18.10.1, xunit 2.9.3, and xunit.runner.visualstudio 4.0.0. Test tooling is not intentionally included in customer payloads. Review exact package licenses and transitive dependencies before distributing any tooling.
 
 WiX 6.0.2 is a **candidate build-tool pin**, not a statement that its availability, maintenance/usage terms, or generated MSI behavior have been validated. The repository does not install WiX automatically. Review [upstream WiX](https://github.com/wixtoolset/wix/tree/v6.0.2) before approving that toolchain.
 

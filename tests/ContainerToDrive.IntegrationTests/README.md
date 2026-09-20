@@ -2,7 +2,7 @@
 
 ## Scope and routing
 
-[ContainerToDrive.IntegrationTests.csproj](ContainerToDrive.IntegrationTests.csproj) targets `net10.0-windows`, references Core/Windows/Rclone, and uses Microsoft.NET.Test.Sdk **17.14.1**, xUnit **2.9.3**, and Visual Studio runner **3.1.1**. Every test class has `Trait("Category", "LocalIntegration")`. No skips, prerequisite-as-success branches, real cloud credentials, downloads, or automatic installation are present.
+[ContainerToDrive.IntegrationTests.csproj](ContainerToDrive.IntegrationTests.csproj) targets `net10.0-windows`, references Core/Windows/Rclone, and uses Microsoft.NET.Test.Sdk **18.10.1**, xUnit **2.9.3**, and Visual Studio runner **4.0.0**. Every test class has `Trait("Category", "LocalIntegration")`. No skips, prerequisite-as-success branches, real cloud credentials, downloads, or automatic installation are present.
 
 Solution registration and a separate entry point selecting this exact project and `Category=LocalIntegration` are intentionally left to the caller. The existing unit entry point is unchanged. The local-integration runner should reject zero executed tests, failures, and skips, and keep results workspace-local. Run from the checkout's artifacts tree, not a copied/shadow-copied directory outside the checkout.
 

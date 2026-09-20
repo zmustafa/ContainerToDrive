@@ -136,7 +136,7 @@ The build includes the desktop, controller, supporting libraries, and test proje
 
 The default unit tier uses synthetic fixtures. It does not discover credentials, contact Azure, mount drives, or install drivers. The test wrapper rejects failures, skipped cases, and zero-test runs. Local Windows integration and interactive WPF checks have separate prerequisites and entry points; see [tests/README.md](tests/README.md).
 
-GitHub configuration is included for Windows build/unit checks, C# CodeQL analysis, and Dependabot updates. Workflow definitions are not a claim that hosted checks have already passed. They do not create binary releases, deploy the application, or use Azure credentials.
+GitHub configuration is included for Windows build/unit checks, C# CodeQL analysis, and Dependabot updates. CI installs the .NET SDK in the runner's temporary directory, outside the checkout, so CodeQL does not treat bundled SDK templates as application source. Workflow definitions are not a claim that hosted checks have already passed. They do not create binary releases, deploy the application, or use Azure credentials.
 
 ## Get Started with GitHub Copilot Chat
 
