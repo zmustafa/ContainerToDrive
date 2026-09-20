@@ -19,7 +19,6 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 25
     env:
-      DOTNET_INSTALL_DIR: ${{ runner.temp }}\dotnet-sdk
       DOTNET_CLI_HOME: ${{ github.workspace }}\.tools\dotnet-home
       NUGET_PACKAGES: ${{ github.workspace }}\.packages\nuget
       NUGET_HTTP_CACHE_PATH: ${{ github.workspace }}\.packages\nuget-http
@@ -36,6 +35,8 @@ jobs:
           fetch-depth: 1
       - name: Set up SDK selected by global.json
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}\dotnet-sdk
         with:
           global-json-file: global.json
       - name: Parse scripts and test workspace safety guards
